@@ -27,6 +27,10 @@ https://librosa.org/doc/latest/generated/librosa.feature.melspectrogram.html
 
 def apply_melspectrogram_to_file(filename):
     y, sample_rate = librosa.load(filename,duration=3)
+    duration=len(y) / sample_rate
+    print(duration)
+
+    librosa.display.waveplot(y=y,sr=sample_rate)
     if y.shape[0] == 0:
         print("y.shape[0] == 0")
         return None
@@ -39,7 +43,7 @@ def apply_melspectrogram_to_file(filename):
         # print(int(n_fft))
         
         melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate, n_mels=40,
-         n_fft=int(n_fft), hop_length = int(hop_len))
+         n_fft=int(n_fft), hop_length = int(hop_len),window=signal.windows.hamming)
         #melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate)
         log_melspectrogram = librosa.power_to_db(melspectrogram, ref=np.max)
         normalized_melspectrogram = (log_melspectrogram - log_melspectrogram.mean()) / log_melspectrogram.std()
@@ -53,6 +57,6 @@ def apply_melspectrogram_to_file(filename):
     return melspectrogram
 
 def display_spectrogram(spectrogram):
-    librosa.display.specshow(spectrogram, y_axis='mel', fmax=8000, x_axis='time')
+    librosa.display.specshow(spectrogram, y_axis='mel', fmax=8000, x_axis='s')
     plt.title('Mel Spectrogram')
     plt.colorbar(format='%+2.0f dB')
