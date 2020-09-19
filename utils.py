@@ -16,7 +16,7 @@ the input sequence to 3 seconds. These end up as log-mel
 lterbank of size 40300 for a 3-second utterance.
 frame-shift = hop time ???      
 n_fft=length of the FFT window(?=frame length)(# Size of the FFT may be used as the window length)
-win_length= The window will be of length win_length
+win_length= The window will be of length n_fft if not specified
 
 
 hop_length = number of samples between successive frames
@@ -24,6 +24,7 @@ hop_length = number of samples between successive frames
 https://librosa.org/doc/latest/generated/librosa.feature.melspectrogram.html
 
 """
+ 
 
 def apply_melspectrogram_to_file(filename):
     y, sample_rate = librosa.load(filename,duration=3)
@@ -39,18 +40,19 @@ def apply_melspectrogram_to_file(filename):
         window_time = .025
         hop_time = .01
         n_fft = sample_rate * window_time
+        print(n_fft)
         hop_len = sample_rate*hop_time
-        # print(int(n_fft))
+        #print(int(n_fft))
         
-        melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate, n_mels=40,
-         n_fft=int(n_fft), hop_length = int(hop_len),window=signal.windows.hamming)
-        #melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate)
+        melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate, n_mels=40,n_fft=int(n_fft), hop_length = int(hop_len),window=signal.windows.hamming)
+        #melspectrogram = librosa.feature.melspectrogram(y=librosa.effects.preemphasis(y), sr=sample_rate,n_mels=40,window=signal.windows.hamming)
         log_melspectrogram = librosa.power_to_db(melspectrogram, ref=np.max)
-        normalized_melspectrogram = (log_melspectrogram - log_melspectrogram.mean()) / log_melspectrogram.std()
+        #normalized_melspectrogram = (log_melspectrogram - log_melspectrogram.mean()) / log_melspectrogram.std()
 
 
 
-    melspectrogram=normalized_melspectrogram
+    melspectrogram=log_melspectrogram.transpose()[:-1]
+    print(melspectrogram.shape)
 
     
     
