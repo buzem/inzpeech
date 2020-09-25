@@ -24,7 +24,26 @@ hop_length = number of samples between successive frames
 https://librosa.org/doc/latest/generated/librosa.feature.melspectrogram.html
 
 """
- 
+
+def return_files(directory):
+
+    all_files=[]
+    for file in os.listdir(os.getcwd()+'/'+directory):
+        if file.endswith(".wav"):
+            all_files.append(os.getcwd()+'/'+directory+'/'+file)
+    print(all_files)
+    return all_files
+
+def return_spectograms(directory):
+    files=return_files(directory)
+    spectograms=[]
+    for file in files:
+        spectograms.append(apply_melspectrogram_to_file(file))
+    return spectograms
+
+
+    
+    
 
 def apply_melspectrogram_to_file(filename):
     y, sample_rate = librosa.load(filename,duration=3)
@@ -57,8 +76,13 @@ def apply_melspectrogram_to_file(filename):
     
     
     return melspectrogram
+def display_all_spectograms(spectrograms):
+    for i in range(0,len(spectrograms)):
+        display_spectrogram(spectrograms[i])
 
 def display_spectrogram(spectrogram):
-    librosa.display.specshow(spectrogram, y_axis='mel', fmax=8000, x_axis='s')
+    librosa.display.specshow(spectrogram.transpose(), y_axis='mel', fmax=8000, x_axis='s')
+    #getting 7 second in time axis, it should be 3, why???
     plt.title('Mel Spectrogram')
     plt.colorbar(format='%+2.0f dB')
+    plt.show()
