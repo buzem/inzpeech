@@ -126,7 +126,7 @@ def vgg_att():
 
     att=SelfAttention(n_hop=4,hidden_dim=1536)
     x=att(x)
-    x=AveragePooling2D(x,pool_size=(4, 1),)
+    x=AveragePooling2D(x,pool_size=(4, 1))
     x = Flatten()(x)
     x = Dense(256, activation = 'relu')(x)
     output = Dense(1251,activation = 'softmax')(x)
