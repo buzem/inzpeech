@@ -132,7 +132,7 @@ def vgg_att():
     output = Dense(1251,activation = 'softmax')(x)
     model = Model(inputs=inputs, outputs=output)
 
-    model.compile(optimizer = Adam(lr=0.1))#need hyperparam-tuning 
+    model.compile(loss='categorical_crossentropy',optimizer ='adam')#need hyperparam-tuning 
     model.summary()
     return model
 
