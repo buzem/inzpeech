@@ -45,20 +45,17 @@ def return_spectograms(directory):
 
 
 def apply_melspectrogram_to_file(filename):
-    y, sample_rate = librosa.load(filename, duration=3)
+    y, sample_rate = librosa.load(filename, duration=1)
     duration = len(y) / sample_rate
-    print(duration)
 
-    librosa.display.waveplot(y=y, sr=sample_rate)
+    #librosa.display.waveplot(y=y, sr=sample_rate)
     if y.shape[0] == 0:
         print("y.shape[0] == 0")
         return None
     else:
-        print(y.shape)
         window_time = .025
         hop_time = .01
         n_fft = sample_rate * window_time
-        print(n_fft)
         hop_len = sample_rate*hop_time
         # print(int(n_fft))
 
@@ -69,7 +66,6 @@ def apply_melspectrogram_to_file(filename):
         #normalized_melspectrogram = (log_melspectrogram - log_melspectrogram.mean()) / log_melspectrogram.std()
 
     melspectrogram = log_melspectrogram.transpose()[:-1]
-    print(melspectrogram.shape)
 
     return melspectrogram
 
