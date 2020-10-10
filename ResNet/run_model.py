@@ -47,8 +47,13 @@ class VCTKData(Dataset):
     def n_class(self):
         return len(list(self.c2i.keys()))
 
+    # According to our input 66150 is the length
     def apply_melspectrogram(self, filename):
-        y, sample_rate = librosa.load(filename, duration=1)
+        target_len = 66150
+        y, sample_rate = librosa.load(filename, duration=3)
+        
+        while(y.shape[0] != target_len):
+            y = np.append(y, y[:target_len - y.shape[0]])
 
         if y.shape[0] == 0:
             print("y.shape[0] == 0")
@@ -70,7 +75,9 @@ class VCTKData(Dataset):
 
         melspectrogram = log_melspectrogram.T[:-1]
 
-        return melspectrogram
+        out = np.expand_dims(melspectrogram, axis=0)
+
+        return out
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -116,7 +123,7 @@ for epoch in range(max_epochs):  # loop over the dataset multiple times
     running_loss = 0.0
     for i, data in enumerate(train_dataset_loader):
         # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
+        inputs, labels = data[0].to(device), data[1].to(device)
 
         # zero the parameter gradients
         optimizer.zero_grad()
