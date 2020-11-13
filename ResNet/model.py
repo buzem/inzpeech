@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class SelfAttention(nn.Module):
     def __init__(self, embed_size, heads):
         super(SelfAttention, self).__init__()
@@ -68,8 +67,7 @@ class SelfAttention(nn.Module):
         # (N, query_len, embed_size)
 
         return out
-
-
+    
 class block(nn.Module):
     def __init__(
         self, in_channels, intermediate_channels, out_channels, identity_downsample=None, stride=1
@@ -117,14 +115,13 @@ class block(nn.Module):
         x += identity
         x = self.relu(x)
         return x
-
+    
 
 class Net(nn.Module):
     def __init__(self, block, layers, image_channels, num_classes, expansion):
         super(Net, self).__init__()
         self.in_channels = 64
-        self.conv1 = nn.Conv2d(
-            image_channels, 64, kernel_size=7, stride=2, padding=3)
+        self.conv1 = nn.Conv2d(image_channels, 64, kernel_size=7, stride=2, padding=3)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -142,11 +139,11 @@ class Net(nn.Module):
         self.layer4 = self._make_layer(
             block, layers[3], intermediate_channels=512, out_channels=512*expansion, stride=2
         )
-
+    
         self.attention = SelfAttention(heads=4, embed_size=512*expansion)
-
+        
         self.avgpool = nn.AvgPool2d((20, 1))
-
+        
         self.fc1 = nn.Linear(512*expansion, 512*expansion//2)
         self.fc2 = nn.Linear(512*expansion//2, 512*expansion//4)
         self.fc3 = nn.Linear(512*expansion//4, num_classes)
@@ -161,17 +158,17 @@ class Net(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-
+          
         x = x.reshape(x.shape[0], x.shape[2] * x.shape[3], x.shape[1])
-        # Attention Layer
+        # Attenntion Layer
         x = self.attention(x, x, x)
         x = self.avgpool(x)
-
+        
         # FC Layer
         x = x.reshape(x.shape[0], -1)
         x = self.relu(self.fc1(x))
         x = self.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.relu(self.fc3(x))
 
         return x
 
@@ -194,21 +191,19 @@ class Net(nn.Module):
             )
 
         layers.append(
-            block(self.in_channels, intermediate_channels,
-                  out_channels, identity_downsample, stride)
+            block(self.in_channels, intermediate_channels, out_channels, identity_downsample, stride)
         )
-
+        
         self.in_channels = out_channels
 
         # For example for first resnet layer: 256 will be mapped to 64 as intermediate layer,
         # then finally back to 256. Hence no identity downsample is needed, since stride = 1,
         # and also same amount of channels.
         for i in range(num_residual_blocks - 1):
-            layers.append(
-                block(self.in_channels, intermediate_channels, out_channels))
+            layers.append(block(self.in_channels, intermediate_channels, out_channels))
 
         return nn.Sequential(*layers)
-
+    
 
 def Net_ResNet50(img_channel=3, num_classes=1000):
     return Net(block, [3, 4, 6, 3], img_channel, num_classes, expansion=4)
@@ -220,3 +215,5 @@ def Net_ResNet101(img_channel=3, num_classes=1000):
 
 def Net_ResNet152(img_channel=3, num_classes=1000):
     return Net(block, [3, 8, 36, 3], img_channel, num_classes, expansion=4)
+
+
